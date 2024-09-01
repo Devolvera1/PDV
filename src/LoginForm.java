@@ -1,6 +1,9 @@
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.time.LocalDateTime;
 
 public class LoginForm extends JFrame {
     private JPanel MainLoginForm;
@@ -26,9 +29,25 @@ public class LoginForm extends JFrame {
                 DatabaseConnection dbConnection = new DatabaseConnection();
 
                 if (dbConnection.authenticateUser(username, password)) {
+                    // Capturar a data e hora do acesso
+                    LocalDateTime dataUltimoAcesso = LocalDateTime.now();
+
+                    // Capturar o endereço IP da máquina
+                    String enderecoIP = "";
+                    try {
+                        InetAddress inetAddress = InetAddress.getLocalHost();
+                        enderecoIP = inetAddress.getHostAddress();
+                    } catch (UnknownHostException ex) {
+                        ex.printStackTrace();
+                    }
+
+                    // Atualizar o último acesso e endereço IP
+                    dbConnection.updateLastAccess(username, dataUltimoAcesso, enderecoIP);
+
+                    // Abrir a página principal
                     PaginaPrincipal PaginaPrincipal = new PaginaPrincipal();
                     PaginaPrincipal.setVisible(true);
-                    dispose();
+                    dispose(); // Fecha a tela de login
                 } else {
                     JOptionPane.showMessageDialog(null, "Usuário ou senha incorretos.");
                 }
@@ -38,8 +57,14 @@ public class LoginForm extends JFrame {
         btn_cancelar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.exit(0);
+                System.exit(0); // Fecha o aplicativo
             }
         });
+    }
+
+    public static void main(String[] args) {
+        // Cria e exibe a tela de login
+        LoginForm loginForm = new LoginForm();
+        loginForm.setVisible(true);
     }
 }

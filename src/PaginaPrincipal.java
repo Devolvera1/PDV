@@ -19,12 +19,10 @@ public class PaginaPrincipal extends JFrame {
 
 
     public PaginaPrincipal() {
-        // Configurações da  janela
         setTitle("Análise de Vendas 1.1");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 
-        //Botões add
+        // Botões add
         panel1 = new JPanel();
         panel1.add(cadastrosButton = new JButton("Cadastros"));
         panel1.add(vendasButton = new JButton("Vendas"));
@@ -111,22 +109,7 @@ public class PaginaPrincipal extends JFrame {
             }
         });
 
-        if (gd.isFullScreenSupported()) {
-            gd.setFullScreenWindow(this);
-        } else {
-            setExtendedState(JFrame.MAXIMIZED_BOTH);
-        }
-        vendasButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-            }
-        });
-    }
-    public static void main(String[] args) {
-        PaginaPrincipal principal = new PaginaPrincipal();
-        principal.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        principal.setVisible(true);
-
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setVisible(true);
     }
 }

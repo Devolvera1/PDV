@@ -3,6 +3,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class DatabaseConnection {
 
@@ -30,6 +32,35 @@ public class DatabaseConnection {
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
+        }
+    }
+
+    public void updateLastAccess(String username, LocalDateTime dataUltimoAcesso, String enderecoIP) {
+        String updateQuery = "UPDATE usuarios SET ultimo_acesso = ?, endereco_ip = ? WHERE username = ?";
+        String historyQuery = "INSERT INTO historico_acessos (usuario_id, data_acesso, endereco_ip) " +
+                "SELECT id, ?, ? FROM usuarios WHERE username = ?";
+
+        try (Connection connection = getConnection();
+             PreparedStatement updateStmt = connection.prepareStatement(updateQuery);
+             PreparedStatement historyStmt = connection.prepareStatement(historyQuery)) {
+
+            // Atualiza o último acesso e IP
+            updateStmt.setObject(1, dataUltimoAcesso);
+            updateStmt.setString(2, enderecoIP);
+            updateStmt.setString(3, username);
+            updateStmt.executeUpdate();
+
+            // Insere no histórico de acessos
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            String formattedDate = dataUltimoAcesso.format(formatter);
+
+            historyStmt.setString(1, formattedDate);
+            historyStmt.setString(2, enderecoIP);
+            historyStmt.setString(3, username);
+            historyStmt.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 }
