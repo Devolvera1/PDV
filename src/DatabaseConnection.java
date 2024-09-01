@@ -15,7 +15,7 @@ public class DatabaseConnection {
     }
 
     public boolean authenticateUser(String username, String password) {
-        String query = "SELECT * FROM usuarios WHERE username = ? AND password = ?";
+        String query = "SELECT * FROM usuarios WHERE username = ? AND senha = ?";
 
         try (Connection connection = getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {

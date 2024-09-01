@@ -10,6 +10,13 @@ public class LoginForm extends JFrame {
     private JPasswordField passwordField1;
 
     public LoginForm() {
+        setContentPane(MainLoginForm); // Define o conteúdo da janela
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // Fecha apenas a janela atual
+        setBounds(500, 300, 300, 150);
+        setResizable(false);
+        setUndecorated(true); // Remove a barra de título
+        setLocationRelativeTo(null);
+
         btn_Ok.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -19,7 +26,8 @@ public class LoginForm extends JFrame {
                 DatabaseConnection dbConnection = new DatabaseConnection();
 
                 if (dbConnection.authenticateUser(username, password)) {
-                    //Implementar a proxima pagina.
+                    PaginaPrincipal PaginaPrincipal = new PaginaPrincipal();
+                    PaginaPrincipal.setVisible(true);
                     dispose();
                 } else {
                     JOptionPane.showMessageDialog(null, "Usuário ou senha incorretos.");
@@ -33,16 +41,5 @@ public class LoginForm extends JFrame {
                 System.exit(0);
             }
         });
-    }
-
-    public static void main(String[] args) {
-        LoginForm h = new LoginForm();
-        h.setContentPane(h.MainLoginForm);
-        h.setBounds(500, 300, 300, 150);
-        h.setResizable(false);
-        h.setUndecorated(true);  // Remove a barra de título
-        h.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        h.setLocationRelativeTo(null);
-        h.setVisible(true);
     }
 }
