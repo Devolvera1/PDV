@@ -1,5 +1,6 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.sql.*;
 
@@ -9,7 +10,7 @@ public class CadastroUsuario extends JFrame {
     private JButton excluirButton;
     private JTable table;
     private DefaultTableModel tableModel;
-    private JPanel panel1;
+    private JToolBar toolBar;
 
     public CadastroUsuario() {
         setTitle("Cadastro de Usuário");
@@ -18,11 +19,18 @@ public class CadastroUsuario extends JFrame {
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setVisible(true);
 
+        JButton adicionarButton = new JButton("Adicionar Usuário",new ImageIcon("src/Icon/add.png"));
+        JButton editarButton = new JButton("Editar Usuário",new ImageIcon("src/Icon/delet.png"));
+        JButton excluirButton = new JButton("Excluir Usuário",new ImageIcon("src/Icon/delet.png"));
 
-        panel1 = new JPanel();
-        panel1.add(adicionarButton = new JButton("Adicionar"));
-        panel1.add(editarButton = new JButton("Editar"));
-        panel1.add(excluirButton = new JButton("Excluir"));
+        toolBar = new JToolBar();
+
+        toolBar.add(adicionarButton);
+        toolBar.add(editarButton);
+        toolBar.add(excluirButton);
+        toolBar.setFloatable(false);
+
+
 
         tableModel = new DefaultTableModel();
         tableModel.setColumnIdentifiers(new Object[]{
@@ -30,10 +38,21 @@ public class CadastroUsuario extends JFrame {
         });
 
         table = new JTable(tableModel);
+        table.setRowHeight(25);
+        table.setFont(new Font("Arial", Font.PLAIN, 14));
+        table.getTableHeader().setFont(new Font("Arial", Font.BOLD, 14));
+        table.getTableHeader().setBackground(new Color(0, 120, 215));
+        table.getTableHeader().setForeground(Color.WHITE);
+
+
+        TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(tableModel);
+        table.setRowSorter(sorter);
+
         JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setBorder(BorderFactory.createTitledBorder("Lista de Usuários"));
 
         setLayout(new BorderLayout());
-        add(panel1, BorderLayout.NORTH);
+        add(toolBar, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
 
         carregarDados();
