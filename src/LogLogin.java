@@ -1,11 +1,16 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.*;
 
 public class LogLogin extends JFrame {
+
+    private static final String DB_URL = "jdbc:mysql://127.0.0.1:3306/PDV_BCO";
+    private static final String DB_USER = "root";
+    private static final String DB_PASSWORD = "Cross-fire1";
 
     private JTable table;
     private DefaultTableModel tableModel;
@@ -23,7 +28,13 @@ public class LogLogin extends JFrame {
                 "Último Acesso", "Criado Por", "Data de Modificação", "Modificado Por", "Endereço IP"
         });
 
-        table = new JTable(tableModel);
+        table = new JTable(tableModel) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // Desabilitar edição de células
+            }
+        };
+        table.setRowSorter(new TableRowSorter<>(tableModel));
         JScrollPane scrollPane = new JScrollPane(table);
 
         add(scrollPane, BorderLayout.CENTER);
@@ -32,22 +43,20 @@ public class LogLogin extends JFrame {
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                int row = table.getSelectedRow();
-                if (row != -1) {
-                    int userId = (int) tableModel.getValueAt(row, 0);
-                    String username = (String) tableModel.getValueAt(row, 1);
-                    mostrarHistoricoAcessos(userId, username);
+                if (e.getClickCount() == 2) { // Permitir abrir o histórico com um duplo clique
+                    int row = table.getSelectedRow();
+                    if (row != -1) {
+                        int userId = (int) tableModel.getValueAt(row, 0);
+                        String username = (String) tableModel.getValueAt(row, 1);
+                        mostrarHistoricoAcessos(userId, username);
+                    }
                 }
             }
         });
     }
 
     private void carregarDados() {
-        String url = "jdbc:mysql://127.0.0.1:3306/PDV_BCO";
-        String user = "root";
-        String password = "Cross-fire1";
-
-        try (Connection connection = DriverManager.getConnection(url, user, password);
+        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
              Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery("SELECT * FROM usuarios")) {
 
@@ -85,16 +94,22 @@ public class LogLogin extends JFrame {
                 "ID", "Data de Acesso", "Endereço IP"
         });
 
-        JTable historicoTable = new JTable(historicoTableModel);
+        JTable historicoTable = new JTable(historicoTableModel) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
         JScrollPane scrollPane = new JScrollPane(historicoTable);
 
         historicoFrame.add(scrollPane, BorderLayout.CENTER);
+        carregarHistoricoAcessos(userId, historicoTableModel);
 
-        String url = "jdbc:mysql://127.0.0.1:3306/PDV_BCO";
-        String user = "root";
-        String password = "Cross-fire1";
+        historicoFrame.setVisible(true);
+    }
 
-        try (Connection connection = DriverManager.getConnection(url, user, password);
+    private void carregarHistoricoAcessos(int userId, DefaultTableModel historicoTableModel) {
+        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
              PreparedStatement preparedStatement = connection.prepareStatement(
                      "SELECT * FROM historico_acessos WHERE usuario_id = ?")) {
 
@@ -111,11 +126,9 @@ public class LogLogin extends JFrame {
 
         } catch (SQLException e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(historicoFrame, "Erro ao carregar histórico: " + e.getMessage(),
+            JOptionPane.showMessageDialog(null, "Erro ao carregar histórico: " + e.getMessage(),
                     "Erro", JOptionPane.ERROR_MESSAGE);
         }
-
-        historicoFrame.setVisible(true);
     }
 
     public static void main(String[] args) {

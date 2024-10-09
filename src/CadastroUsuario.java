@@ -19,9 +19,9 @@ public class CadastroUsuario extends JFrame {
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setVisible(true);
 
-        JButton adicionarButton = new JButton("Adicionar Usuário",new ImageIcon("src/Icon/add.png"));
-        JButton editarButton = new JButton("Editar Usuário",new ImageIcon("src/Icon/delet.png"));
-        JButton excluirButton = new JButton("Excluir Usuário",new ImageIcon("src/Icon/delet.png"));
+        adicionarButton = new JButton("Adicionar Usuário", new ImageIcon("src/Icon/add.png"));
+        editarButton = new JButton("Editar Usuário", new ImageIcon("src/Icon/delet.png"));
+        excluirButton = new JButton("Excluir Usuário", new ImageIcon("src/Icon/delet.png"));
 
         toolBar = new JToolBar();
 
@@ -30,20 +30,23 @@ public class CadastroUsuario extends JFrame {
         toolBar.add(excluirButton);
         toolBar.setFloatable(false);
 
-
-
         tableModel = new DefaultTableModel();
         tableModel.setColumnIdentifiers(new Object[]{
                 "ID", "Username", "Nome Completo", "Função", "Status", "Data de Criação", "Último Acesso"
         });
 
-        table = new JTable(tableModel);
+        table = new JTable(tableModel) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
         table.setRowHeight(25);
         table.setFont(new Font("Arial", Font.PLAIN, 14));
         table.getTableHeader().setFont(new Font("Arial", Font.BOLD, 14));
         table.getTableHeader().setBackground(new Color(0, 120, 215));
         table.getTableHeader().setForeground(Color.WHITE);
-
 
         TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(tableModel);
         table.setRowSorter(sorter);
@@ -123,10 +126,28 @@ public class CadastroUsuario extends JFrame {
             String nomeCompleto = (String) tableModel.getValueAt(row, 2);
             String funcao = (String) tableModel.getValueAt(row, 3);
             String status = (String) tableModel.getValueAt(row, 4);
+            String senha = "";
+
+            String url = "jdbc:mysql://127.0.0.1:3306/PDV_BCO";
+            String user = "root";
+            String password = "Cross-fire1";
+
+            try (Connection connection = DriverManager.getConnection(url, user, password);
+                 PreparedStatement ps = connection.prepareStatement("SELECT senha FROM usuarios WHERE id = ?")) {
+                ps.setInt(1, userId);
+                ResultSet rs = ps.executeQuery();
+                if (rs.next()) {
+                    senha = rs.getString("senha");
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Erro ao carregar a senha: " + e.getMessage(),
+                        "Erro", JOptionPane.ERROR_MESSAGE);
+            }
 
             JTextField usernameField = new JTextField(username);
             JTextField nomeCompletoField = new JTextField(nomeCompleto);
-            JTextField senhaField = new JTextField();
+            JTextField senhaField = new JTextField(senha);
             JTextField funcaoField = new JTextField(funcao);
 
             String[] statusOptions = {"Ativo", "Inativo", "Bloqueado"};
@@ -152,17 +173,13 @@ public class CadastroUsuario extends JFrame {
 
                     ps.setString(1, usernameField.getText());
                     ps.setString(2, nomeCompletoField.getText());
-                    ps.setString(3, senhaField.getText().isEmpty() ? null : senhaField.getText());
+                    ps.setString(3, senhaField.getText());
                     ps.setString(4, funcaoField.getText());
                     ps.setString(5, (String) statusField.getSelectedItem());
                     ps.setString(6, "admin");
                     ps.setInt(7, userId);
                     ps.executeUpdate();
-
-                    tableModel.setValueAt(usernameField.getText(), row, 1);
-                    tableModel.setValueAt(nomeCompletoField.getText(), row, 2);
-                    tableModel.setValueAt(funcaoField.getText(), row, 3);
-                    tableModel.setValueAt(statusField.getSelectedItem(), row, 4);
+                    carregarDados();
 
                     JOptionPane.showMessageDialog(this, "Usuário atualizado com sucesso!");
                 } catch (SQLException ex) {
@@ -175,6 +192,7 @@ public class CadastroUsuario extends JFrame {
             JOptionPane.showMessageDialog(this, "Selecione um usuário para editar.", "Aviso", JOptionPane.WARNING_MESSAGE);
         }
     }
+
 
     private void abrirJanelaAdicionarUsuario() {
         JFrame janelaAdicionarUsuario = new JFrame("Adicionar Novo Usuário");
@@ -219,20 +237,18 @@ public class CadastroUsuario extends JFrame {
             String criadoPor = criadoPorField.getText();
 
             try (Connection connection = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/PDV_BCO", "root", "Cross-fire1");
-                 PreparedStatement ps = connection.prepareStatement("INSERT INTO usuarios (username, nome_completo, senha, funcao, status, criado_por, modificado_por) VALUES (?, ?, ?, ?, ?, ?, ?)")) {
+                 PreparedStatement ps = connection.prepareStatement("INSERT INTO usuarios (username, nome_completo, senha, funcao, status, criado_por) VALUES (?, ?, ?, ?, ?, ?)")) {
                 ps.setString(1, username);
                 ps.setString(2, nomeCompleto);
                 ps.setString(3, senha);
                 ps.setString(4, funcao);
                 ps.setString(5, status);
                 ps.setString(6, criadoPor);
-                ps.setString(7, "admin");
                 ps.executeUpdate();
 
                 carregarDados();
                 janelaAdicionarUsuario.dispose();
                 JOptionPane.showMessageDialog(this, "Usuário adicionado com sucesso!");
-
             } catch (SQLException ex) {
                 ex.printStackTrace();
                 JOptionPane.showMessageDialog(this, "Erro ao adicionar usuário: " + ex.getMessage(),
@@ -246,6 +262,6 @@ public class CadastroUsuario extends JFrame {
     }
 
     public static void main(String[] args) {
-        new CadastroUsuario();
+        SwingUtilities.invokeLater(CadastroUsuario::new);
     }
 }
