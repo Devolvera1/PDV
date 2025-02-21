@@ -43,7 +43,7 @@ public class LogLogin extends JFrame {
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) { // Permitir abrir o histórico com um duplo clique
+                if (e.getClickCount() == 2) {
                     int row = table.getSelectedRow();
                     if (row != -1) {
                         int userId = (int) tableModel.getValueAt(row, 0);

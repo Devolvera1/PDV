@@ -19,7 +19,6 @@ public class CadastroDeCliente extends JFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setVisible(true);
 
-        // Botões existentes
         adicionarButton = new JButton("Adicionar Cliente", new ImageIcon("src/Icon/add.png"));
         editarButton = new JButton("Editar Cliente", new ImageIcon("src/Icon/delet.png"));
         excluirButton = new JButton("Excluir Cliente", new ImageIcon("src/Icon/delet.png"));
@@ -27,15 +26,11 @@ public class CadastroDeCliente extends JFrame {
 
         toolBar = new JToolBar();
 
-        // Adiciona os botões à barra de ferramentas
         toolBar.add(adicionarButton);
         toolBar.add(editarButton);
         toolBar.add(excluirButton);
-
-        // Adiciona um espaço para empurrar os botões à esquerda
         toolBar.add(Box.createHorizontalGlue());
         toolBar.add(atualizarButton);
-
         toolBar.setFloatable(false);
 
         tableModel = new DefaultTableModel();
@@ -68,7 +63,6 @@ public class CadastroDeCliente extends JFrame {
 
         carregarDados();
 
-        // Ações dos botões
         excluirButton.addActionListener(e -> excluirCliente());
         editarButton.addActionListener(e -> editarCliente());
         adicionarButton.addActionListener(e -> abrirJanelaAdicionarCliente());
@@ -99,30 +93,6 @@ public class CadastroDeCliente extends JFrame {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Erro ao carregar dados: " + e.getMessage(),
                     "Erro", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private void excluirCliente() {
-        int row = table.getSelectedRow();
-        if (row != -1) {
-            int userId = (int) tableModel.getValueAt(row, 0);
-            int confirm = JOptionPane.showConfirmDialog(this, "Deseja realmente excluir este cliente?",
-                    "Confirmar exclusão", JOptionPane.YES_NO_OPTION);
-            if (confirm == JOptionPane.YES_OPTION) {
-                try (Connection connection = DatabaseConnection.getConnection();
-                     PreparedStatement ps = connection.prepareStatement("DELETE FROM clientes WHERE id = ?")) {
-                    ps.setInt(1, userId);
-                    ps.executeUpdate();
-                    tableModel.removeRow(row);
-                    JOptionPane.showMessageDialog(this, "Cliente excluído com sucesso!");
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                    JOptionPane.showMessageDialog(this, "Erro ao excluir cliente: " + ex.getMessage(),
-                            "Erro", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        } else {
-            JOptionPane.showMessageDialog(this, "Selecione um cliente para excluir.", "Aviso", JOptionPane.WARNING_MESSAGE);
         }
     }
 
@@ -182,6 +152,30 @@ public class CadastroDeCliente extends JFrame {
             }
         } else {
             JOptionPane.showMessageDialog(this, "Selecione um cliente para editar.", "Aviso", JOptionPane.WARNING_MESSAGE);
+        }
+    }
+
+    private void excluirCliente() {
+        int row = table.getSelectedRow();
+        if (row != -1) {
+            int userId = (int) tableModel.getValueAt(row, 0);
+            int confirm = JOptionPane.showConfirmDialog(this, "Deseja realmente excluir este cliente?",
+                    "Confirmar exclusão", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                try (Connection connection = DatabaseConnection.getConnection();
+                     PreparedStatement ps = connection.prepareStatement("DELETE FROM clientes WHERE id = ?")) {
+                    ps.setInt(1, userId);
+                    ps.executeUpdate();
+                    tableModel.removeRow(row);
+                    JOptionPane.showMessageDialog(this, "Cliente excluído com sucesso!");
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(this, "Erro ao excluir cliente: " + ex.getMessage(),
+                            "Erro", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Selecione um cliente para excluir.", "Aviso", JOptionPane.WARNING_MESSAGE);
         }
     }
 

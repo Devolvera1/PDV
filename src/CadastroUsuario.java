@@ -27,17 +27,11 @@ public class CadastroUsuario extends JFrame {
 
 
         toolBar = new JToolBar();
-
         toolBar.add(adicionarButton);
         toolBar.add(editarButton);
         toolBar.add(excluirButton);
-
-// Adiciona um filler para empurrar o botão "atualizar" para a extrema direita
         toolBar.add(Box.createHorizontalGlue());
-
-        toolBar.add(atualizarButton); // Adiciona o botão "atualizar" na extrema direita
-
-
+        toolBar.add(atualizarButton);
         toolBar.setFloatable(false);
 
         tableModel = new DefaultTableModel();
